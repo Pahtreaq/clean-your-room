@@ -5,13 +5,15 @@ function formatPrice(price) {
 function calculateEmployerContribution(product, price, dollarsOff) {
   if (product.employerContribution.mode === 'dollar') {
     price = price - product.employerContribution.contribution
+    return price
   } else {
     dollarsOff = price * (product.employerContribution.contribution / 100)
     price = price - dollarsOff
+    return price
   }
 }
 
-function CalculateVolLifePrice(price, product, coverageLevels) {
+function calculateVolLifePrice(price, dollarsOff, product, coverageLevels) {
   for (var i = 0; i < coverageLevels.length; i++) {
     var coverageAmount = coverageLevels[i].coverage
 
@@ -28,17 +30,17 @@ function calculateLTDPrice(product, employee) {
 module.exports.calculateProductPrice = function (product, employee, coverageLevels) {
   var price = 0
   var dollarsOff = 0
-  var DiscountedPrice
+  var discountedPrice = 0
+
   switch (product.type) {
     case 'volLife':
-      price = CalculateVolLifePrice(price, dollarsOff, product, coverageLevels)
-      DiscountedPrice = calculateEmployerContribution(product, price, dollarsOff)
-      return formatPrice(DiscountedPrice)
+      price = calculateVolLifePrice(price, dollarsOff, product, coverageLevels)
+      discountedPrice = calculateEmployerContribution(product, price, dollarsOff)
+      return formatPrice(discountedPrice)
     case 'ltd':
       price = calculateLTDPrice(product, employee)
-      DiscountedPrice = calculateEmployerContribution(product, price, dollarsOff)
-      return formatPrice(DiscountedPrice)
-      return calculateLTDPrice(product, employee)
+      discountedPrice = calculateEmployerContribution(product, price, dollarsOff)
+      return formatPrice(discountedPrice)
     default:
       return 0
   }
